@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔱 Mantra Library — Darshan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #b8860b; --gold-l: #d4a017; --gold-bg: #fff8e7; --gold-border: #f5d87a;
+  --pur: #5b2d8e; --pur-l: #7b4db4; --pur-bg: #f5f0ff; --pur-border: #d0b8f0;
+  --red: #c0392b; --grn: #1a7a3e; --blu: #1a4fa0;
+  --text: #1a1a2e; --muted: #66668a; --border: #e0d8f0;
+  --white: #fff; --page: #f8f5ff; --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--page); color: var(--text); font-family: 'EB Garamond', Georgia, serif; font-size: 16px; line-height: 1.7; }
+
+/* ANCHOR BAR */
+.anchor-bar {
+  background: var(--white); border-bottom: 1.5px solid var(--border);
+  padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 6px;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 8px rgba(91,45,142,.08);
+}
+.anchor-pill {
+  display: inline-block; padding: 5px 14px; border-radius: 20px;
+  font-family: 'Cinzel', serif; font-size: .68em; font-weight: 600;
+  color: var(--pur); background: var(--pur-bg); border: 1px solid var(--pur-border);
+  text-decoration: none; transition: all .2s; cursor: pointer; white-space: nowrap;
+}
+.anchor-pill:hover, .anchor-pill.active { background: var(--pur); color: var(--white); border-color: var(--pur); }
+.anchor-pill.gold { background: var(--gold-bg); color: var(--gold); border-color: var(--gold-border); }
+.anchor-pill.gold:hover, .anchor-pill.gold.active { background: var(--gold); color: var(--white); border-color: var(--gold); }
+
+/* CONTAINER */
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 16px 80px; }
+
+/* SECTION HEADER */
+.section-header {
+  font-family: 'Cinzel', serif; font-size: 1em; color: var(--white);
+  background: linear-gradient(135deg,#5b2d8e,#7b4db4);
+  border-radius: 10px; padding: 12px 18px; margin: 0 0 24px;
+  display: flex; align-items: center; gap: 10px; scroll-margin-top: 60px;
+}
+
+/* DEITY GRID */
+.deity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px; margin-bottom: 40px;
+}
+.deity-thumb {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; cursor: pointer;
+  transition: all .22s; scroll-margin-top: 70px;
+}
+.deity-thumb:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(91,45,142,.15); border-color: var(--pur-l); }
+.deity-thumb.featured { border-color: var(--gold-border); border-width: 2px; }
+.thumb-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: top center; display: block; background: #ede7f6; }
+.thumb-info { padding: 10px 12px 12px; }
+.thumb-name { font-family: 'Cinzel', serif; font-size: .78em; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.thumb-day { font-size: .72em; color: var(--muted); }
+.thumb-badge { display: inline-block; margin-top: 5px; font-size: .62em; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: var(--pur-bg); color: var(--pur-l); font-family: 'Cinzel', serif; }
+.thumb-badge.daily { background: #fff3cd; color: #856404; }
+.thumb-badge.sat { background: #f0f0f0; color: #444; }
+.thumb-badge.grn { background: #e8f5e9; color: #1b5e20; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(20,10,40,.75); z-index: 1000; overflow-y: auto; padding: 20px 16px; }
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal-panel { background: var(--white); border-radius: 16px; max-width: 980px; width: 100%; overflow: hidden; position: relative; margin: auto; box-shadow: 0 24px 80px rgba(0,0,0,.4); }
+.modal-close { position: absolute; top: 14px; right: 16px; z-index: 10; background: rgba(255,255,255,.92); border: 1.5px solid var(--border); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; color: var(--text); transition: all .2s; }
+.modal-close:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+.modal-body { display: grid; grid-template-columns: 300px 1fr; }
+
+/* MODAL LEFT */
+.modal-left { position: sticky; top: 0; align-self: start; height: 100vh; overflow: hidden; }
+.modal-left-inner { height: 100%; display: flex; flex-direction: column; }
+.modal-hero-img { width: 100%; height: 360px; object-fit: cover; object-position: top center; display: block; background: #ede7f6; }
+.modal-deity-info { background: linear-gradient(160deg,#1e0f4a,#5b2d8e); padding: 18px 18px 22px; flex: 1; overflow-y: auto; }
+.modal-deity-name { font-family: 'Cinzel', serif; font-size: 1.4em; font-weight: 700; color: #f5d87a; letter-spacing: 1.5px; margin-bottom: 4px; }
+.modal-deity-epithets { font-size: .8em; color: #cdb8f0; margin-bottom: 12px; line-height: 1.5; }
+.meta-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.mpill { font-size: .68em; padding: 3px 10px; border-radius: 14px; font-weight: 600; font-family: 'Cinzel', serif; }
+.mpill-day { background: rgba(245,216,122,.18); color: #f5d87a; border: 1px solid rgba(245,216,122,.4); }
+.mpill-time { background: rgba(205,184,240,.15); color: #cdb8f0; border: 1px solid rgba(205,184,240,.35); }
+.mpill-count { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+.modal-purpose { background: rgba(245,216,122,.1); border-left: 3px solid #f5d87a; border-radius: 0 8px 8px 0; padding: 9px 12px; font-size: .78em; color: #e0ccff; line-height: 1.6; }
+
+/* MODAL RIGHT */
+.modal-right { padding: 26px 26px 40px; overflow-y: auto; max-height: 100vh; border-left: 1.5px solid var(--border); }
+.msec { font-family: 'Cinzel', serif; font-size: .7em; font-weight: 700; color: var(--pur); letter-spacing: 1.5px; text-transform: uppercase; margin: 22px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.msec:first-child { margin-top: 0; }
+.mblock { background: var(--page); border-radius: 10px; border-left: 3px solid var(--red); padding: 13px 15px; margin-bottom: 10px; }
+.mblock.sat { border-left-color: #888; }
+.mblock.gold { border-left-color: var(--gold); }
+.mblock.grn { border-left-color: var(--grn); }
+.mblock.blu { border-left-color: var(--blu); }
+.mlabel { font-family: 'Cinzel', serif; font-size: .63em; font-weight: 700; color: var(--red); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 7px; }
+.mlabel.sat { color: #555; } .mlabel.gold { color: var(--gold); } .mlabel.grn { color: var(--grn); } .mlabel.blu { color: var(--blu); }
+.mrom { font-style: italic; font-size: .93em; color: var(--text); line-height: 1.7; margin-bottom: 5px; }
+.mdeva { font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.05em; color: var(--pur); line-height: 1.9; margin-bottom: 5px; }
+.mnote { font-size: .77em; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.hl { background: rgba(192,57,43,.05); border-radius: 8px; border: 1px solid rgba(192,57,43,.18); padding: 10px 13px; font-size: .8em; color: #7a2c10; margin-top: 10px; line-height: 1.6; }
+.hl.gold { background: rgba(184,134,11,.05); border-color: rgba(184,134,11,.25); color: #7a5a00; }
+
+/* CHALISA */
+.cverse { border-bottom: 1px solid var(--border); padding: 11px 0; }
+.cverse:last-child { border-bottom: none; }
+.cvnum { font-family: 'Cinzel', serif; font-size: .63em; font-weight: 700; color: var(--pur-l); margin-bottom: 5px; }
+.cvrom { font-style: italic; font-size: .88em; color: var(--text); line-height: 1.7; margin-bottom: 3px; }
+.cvdeva { font-family: 'Tiro Devanagari Hindi', serif; font-size: .98em; color: var(--pur); line-height: 1.9; }
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .modal-body { grid-template-columns: 1fr; }
+  .modal-left { position: static; height: auto; }
+  .modal-hero-img { height: 240px; }
+  .modal-right { max-height: none; border-left: none; border-top: 1.5px solid var(--border); padding: 18px 14px 30px; }
+  .deity-grid { grid-template-columns: repeat(2,1fr); }
+  .anchor-bar { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ANCHOR BAR -->
+<div class="anchor-bar">
+  <a class="anchor-pill gold" href="#surya" onclick="scrollTo('surya')">☀ Surya</a>
+  <a class="anchor-pill gold" href="#ganesha" onclick="scrollTo('ganesha')">🐘 Ganesha</a>
+  <a class="anchor-pill gold active" href="#hanuman" onclick="scrollTo('hanuman')">🚩 Hanuman</a>
+  <a class="anchor-pill gold" href="#jupiter" onclick="scrollTo('jupiter')">🪐 Jupiter</a>
+  <a class="anchor-pill gold" href="#venus" onclick="scrollTo('venus')">♀ Venus</a>
+  <a class="anchor-pill gold" href="#saturn" onclick="scrollTo('saturn')">♄ Saturn</a>
+  <a class="anchor-pill gold" href="#moon" onclick="scrollTo('moon')">🌙 Moon</a>
+  <a class="anchor-pill gold" href="#mercury" onclick="scrollTo('mercury')">☿ Mercury</a>
+  <a class="anchor-pill gold" href="#shiva" onclick="scrollTo('shiva')">🔱 Shiva</a>
+  <a class="anchor-pill gold" href="#lakshmi" onclick="scrollTo('lakshmi')">🪔 Lakshmi</a>
+  <a class="anchor-pill" href="#monthly" onclick="scrollTo('monthly')">🌑 Monthly</a>
+  <a class="anchor-pill" href="#purash" onclick="scrollTo('purash')">🔢 Purashcharana</a>
+</div>
+
+<div class="container">
+  <div class="section-header">🔱 Mantra Library</div>
+
+  <div class="deity-grid">
+
+    <!-- SURYA -->
+    <div class="deity-thumb" id="surya" onclick="openModal('surya')">
+      <img class="thumb-img" src="https://cdn.exoticindia.com/images/products/original/paintings-2019/dde665_a02.jpg" alt="Surya">
+      <div class="thumb-info">
+        <div class="thumb-name">Surya</div>
+        <div class="thumb-day">Every Day · Sunrise</div>
+        <span class="thumb-badge daily">21× Sun · 12× daily</span>
+      </div>
+    </div>
+
+    <!-- GANESHA -->
+    <div class="deity-thumb" id="ganesha" onclick="openModal('ganesha')">
+      <img class="thumb-img" src="https://drsartscompany.com/finearts/wp-content/uploads/2021/09/RRV127-600x600.jpg" alt="Ganesha">
+      <div class="thumb-info">
+        <div class="thumb-name">Ganesha</div>
+        <div class="thumb-day">Every Day · 6:30 AM</div>
+        <span class="thumb-badge daily">108× daily</span>
+      </div>
+    </div>
+
+    <!-- HANUMAN -->
+    <div class="deity-thumb featured" id="hanuman" onclick="openModal('hanuman')">
+      <img class="thumb-img" src="https://www.sahapedia.org/sites/default/files/styles/sp_inline_images/public/users/user16544/Hanuman%20oleograph-Raja%20Ravi%20Varma%20Press-20%20century_KC%20Aryan%20collection.jpg?itok=xxf1wDb6" alt="Hanuman">
+      <div class="thumb-info">
+        <div class="thumb-name">Hanuman</div>
+        <div class="thumb-day">Every Day · 7:00 AM</div>
+        <span class="thumb-badge daily">1× daily · 4× Saturday</span>
+      </div>
+    </div>
+
+    <!-- JUPITER -->
+    <div class="deity-thumb" id="jupiter" onclick="openModal('jupiter')">
+      <img class="thumb-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgW05JPelag6qUVtWse0ny8q0j87W1QaaVkw&s" alt="Brihaspati Jupiter" >
+      <div class="thumb-info">
+        <div class="thumb-name">Jupiter · Guru</div>
+        <div class="thumb-day">Thursday · 6–10 AM</div>
+        <span class="thumb-badge">Lagna Lord · AK</span>
+      </div>
+    </div>
+
+    <!-- VENUS -->
+    <div class="deity-thumb" id="venus" onclick="openModal('venus')">
+      <img class="thumb-img" src="https://resources.ganeshaspeaks.com/wp-content/uploads/2024/06/Shukra-Puja-1-2400-1-1024x1024.webp" alt="Shukra Venus">
+      <div class="thumb-info">
+        <div class="thumb-name">Venus · Shukra</div>
+        <div class="thumb-day">Friday · Morning</div>
+        <span class="thumb-badge">20-yr MD Lord</span>
+      </div>
+    </div>
+
+    <!-- SATURN -->
+    <div class="deity-thumb" id="saturn" onclick="openModal('saturn')">
+      <img class="thumb-img" src="https://c9admin.cottage9.com/uploads/5850/shani-jayanti.jpg" alt="Shani Saturn" >
+      <div class="thumb-info">
+        <div class="thumb-name">Saturn · Shani</div>
+        <div class="thumb-day">Saturday · Sunrise</div>
+        <span class="thumb-badge sat">Transit Suppressor</span>
+      </div>
+    </div>
+
+    <!-- MOON -->
+    <div class="deity-thumb" id="moon" onclick="openModal('moon')">
+      <img class="thumb-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS60yw81l45f6m4d6xmXrWRY3RsgXZctjlmFw&s" alt="Chandra Moon" >
+      <div class="thumb-info">
+        <div class="thumb-name">Moon · Chandra</div>
+        <div class="thumb-day">Monday · Morning</div>
+        <span class="thumb-badge">MD Lord · Gandanta</span>
+      </div>
+    </div>
+
+    <!-- MERCURY -->
+    <div class="deity-thumb" id="mercury" onclick="openModal('mercury')">
+      <img class="thumb-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEh2v4xIyMWVPdMXE9erdDnLrUSqbgZUTLVA&s" alt="Budha Mercury">
+      <div class="thumb-info">
+        <div class="thumb-name">Mercury · Budha</div>
+        <div class="thumb-day">Wednesday · 7–10 AM</div>
+        <span class="thumb-badge">Maha Yogada</span>
+      </div>
+    </div>
+
+    <!-- SHIVA -->
+    <div class="deity-thumb" id="shiva" onclick="openModal('shiva')">
+      <img class="thumb-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRR4hoSUFFW6VwAqpHFSPojnmSudmcfqdxfMA&s" alt="Shiva">
+      <div class="thumb-info">
+        <div class="thumb-name">Shiva · Mrityunjaya</div>
+        <div class="thumb-day">Every Day · 7:20 AM</div>
+        <span class="thumb-badge daily">21× daily</span>
+      </div>
+    </div>
+
+    <!-- LAKSHMI -->
+    <div class="deity-thumb" id="lakshmi" onclick="openModal('lakshmi')">
+      <img class="thumb-img" src="https://m.media-amazon.com/images/I/51QPhH+QybL._AC_UF894,1000_QL80_.jpg" alt="Lakshmi">
+      <div class="thumb-info">
+        <div class="thumb-name">Lakshmi</div>
+        <div class="thumb-day">Friday · Evening</div>
+        <span class="thumb-badge grn">Ghee Lamp · Ashtakam</span>
+      </div>
+    </div>
+
+    <!-- MONTHLY -->
+    <div class="deity-thumb" id="monthly" onclick="openModal('monthly')">
+      <img class="thumb-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaNsxUGx-WRXSS7rPQ8Z2Z5Ix_1abm3RbFWA&s" alt="Monthly rituals">
+      <div class="thumb-info">
+        <div class="thumb-name">Monthly Rituals</div>
+        <div class="thumb-day">Amavasya · Sankashti</div>
+        <span class="thumb-badge">Pitru · Ganesha Fast</span>
+      </div>
+    </div>
+
+    <!-- PURASHCHARANA -->
+    <div class="deity-thumb" id="purash" onclick="openModal('purash')">
+      <img class="thumb-img" src="https://astrosagar.com/wp-content/uploads/2022/02/The-Awakening-of-Chakras-700x430.jpg" alt="Purashcharana">
+      <div class="thumb-info">
+        <div class="thumb-name">Purashcharana</div>
+        <div class="thumb-day">Sequential · One at a time</div>
+        <span class="thumb-badge sat">Ju · Mo · Ve · Me · Sa</span>
+      </div>
+    </div>
+
+  </div><!-- /deity-grid -->
+</div><!-- /container -->
+
+
+<!-- ════════════════════════════════════════
+     MODAL OVERLAY
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeOutside(event)">
+  <div class="modal-panel" id="modal-panel">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body" id="modal-body"><!-- filled by JS --></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     MODAL DATA
+════════════════════════════════════════ -->
+<script>
+var MODALS = {
+
+  /* ─── SURYA ─── */
+  surya: {
+    img: 'https://cdn.exoticindia.com/images/products/original/paintings-2019/dde665_a02.jpg',
+    imgFallback: 'https://cdn.exoticindia.com/images/products/original/paintings-2019/dde665_a02.jpg',
+    name: 'Surya',
+    epithets: 'Bhaskara · Aditya · Ravi · Vivasvan · Martanda',
+    pills: ['Every Day','Sunrise','21× Sunday · 12× daily'],
+    purpose: 'Sun exalted at 120.24% Shadbala — single highest-value daily action. Do not skip even one day. This is the foundation the entire stack rests on.',
+    content: `
+      <div class="msec">🌅 Arghya — Water Offering</div>
+      <div class="mblock">
+        <div class="mlabel">Surya Arghya Mantra — 12× daily · 21× Sunday</div>
+        <div class="mrom">Om Hrim Hraum Suryaya Namaha</div>
+        <div class="mdeva">ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः</div>
+        <div class="mnote">Face East. Cup both hands. Let water pour slowly over rim toward the rising sun. Chant 12× while pouring. On Sunday: 21×. Follow immediately with 5–12 Surya Namaskar.</div>
+      </div>
+      <div class="msec">☀ Beej Mantra</div>
+      <div class="mblock">
+        <div class="mlabel">Surya Beej</div>
+        <div class="mrom">Om Hraam Hreem Hraum Sah Suryaya Namah</div>
+        <div class="mdeva">ॐ हराम हरिम ह्रौं सह सूर्याय नमः</div>
+        <div class="mnote">Recite during Surya hora or alongside Arghya.</div>
+      </div>
+      <div class="msec">✨ Surya Gayatri</div>
+      <div class="mblock">
+        <div class="mlabel">Surya Gayatri Mantra</div>
+        <div class="mrom">Om Bhaskaraya Vidmahe, Mahadyutikaraya Dhimahi, Tanno Aditya Prachodayat</div>
+        <div class="mdeva">ॐ भास्कराय विद्महे महाद्युतिकराय धीमहि। तन्नो आदित्यः प्रचोदयात्॥</div>
+        <div class="mnote">108× during Surya hora, Sunday preferred.</div>
+      </div>
+      <div class="hl gold">⭐ Sunday: 21× Surya mantra + extended Surya Namaskar. All other days 12×. Sun at 120.24% Shadbala — the one daily practice that must never lapse.</div>
+    `
+  },
+
+  /* ─── GANESHA ─── */
+  ganesha: {
+    img: 'https://drsartscompany.com/finearts/wp-content/uploads/2021/09/RRV127-600x600.jpg',
+    imgFallback: 'https://drsartscompany.com/finearts/wp-content/uploads/2021/09/RRV127-600x600.jpg',
+    name: 'Ganesha',
+    epithets: 'Vighneshvara · Ganapati · Siddhivinayaka · Lambodara · Ekadanta',
+    pills: ['Every Day','6:30 AM','108× daily · 1008× Sankashti'],
+    purpose: 'Primary employment gap + Amavasya birth remedy. Addresses the obstacle between skills and the world\'s recognition. 5-min silence after recitation is mandatory — do not skip.',
+    content: `
+      <div class="msec">🐘 Beej Mantra — Primary</div>
+      <div class="mblock">
+        <div class="mlabel">Ganesha Beej — 108× every morning</div>
+        <div class="mrom">Om Gam Ganapataye Namaha</div>
+        <div class="mdeva">ॐ गं गणपतये नमः</div>
+        <div class="mnote">Touch Siddhi Ganapati Yantra. Light sandalwood incense. Use mala. 5 minutes silence after completion. Intention: "Remove the obstacle between my skills and the world's recognition."</div>
+      </div>
+      <div class="msec">✨ Ganesha Gayatri</div>
+      <div class="mblock">
+        <div class="mlabel">Ganesha Gayatri Mantra</div>
+        <div class="mrom">Om Ekadantaya Vidmahe, Vakratundaya Dhimahi, Tanno Danti Prachodayat</div>
+        <div class="mdeva">ॐ एकदन्ताय विद्महे वक्रतुण्डाय धीमहि। तन्नो दन्तिः प्रचोदयात्॥</div>
+        <div class="mnote">108× — can follow the Beej recitation or during Sankashti fast.</div>
+      </div>
+      <div class="msec">🌙 Sankashti Chaturthi — Monthly</div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Monthly fast mantra — 1008×</div>
+        <div class="mrom">Om Gam Ganapataye Namaha</div>
+        <div class="mdeva">ॐ गं गणपतये नमः</div>
+        <div class="mnote">Fast sunrise to moonrise. Water and milk permitted. Spread 1008× across morning and evening sessions. Visit Ganesha temple in evening. Offer modak, durva grass, red flowers. Break fast after moonrise.</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Extended — During Jupiter PD (Jun 20–Sep 12, 2026)</div>
+        <div class="mrom">Full Ganesha Stotra recitation in addition to 1008×</div>
+        <div class="mdeva">॥ श्री गणेश स्तोत्र ॥</div>
+        <div class="mnote">Recite full Ganesha Stotra additionally during Jupiter PD on every Sankashti. Most powerful monthly practice for Amavasya-born natives.</div>
+      </div>
+      <div class="msec">🔥 Homa — Jun 17–18, 2026</div>
+      <div class="mblock">
+        <div class="mlabel">Ganapati Homa — 1008 ahutis</div>
+        <div class="mrom">Om Gam Ganapataye Namaha — 1008 ahutis at qualified Ganesha temple</div>
+        <div class="mdeva">ॐ गं गणपतये नमः — १००८ आहुतियाँ</div>
+        <div class="mnote">Sankalpa must include: career obstacle removal, employment establishment, Mercury Yogada activation, Ketu H11 income suppression removal. 3 days before Jupiter PD ignition Jun 20 — highest single ROI ritual of 2026. Book temple and priest now.</div>
+      </div>
+    `
+  },
+
+  /* ─── HANUMAN ─── */
+  hanuman: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Hanuman_lithograph.jpg/480px-Hanuman_lithograph.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Hanuman_Chalisa_%28Gita_Press%2C_Gorakhpur%29.jpg/480px-Hanuman_Chalisa_%28Gita_Press%2C_Gorakhpur%29.jpg',
+    name: 'Hanuman',
+    epithets: 'Kesari Nandan · Pavanputra · Sankat Mochan · Anjaniputra · Bajrangbali',
+    pills: ['Every Day','7:00 AM','1× daily · 4× Saturday'],
+    purpose: 'Primary remedy for Rahu H5 (Bharani nakshatra). Counters 3 AM anxiety, overthinking, and fear patterns. Saturday 4× runs until Rahu PD ends Jun 20, 2026. Non-negotiable on all 7 days.',
+    content: `
+      <div class="msec">🚩 Hanuman Chalisa — Full 40 Verses</div>
+      <div style="margin-bottom:4px">
+        <div class="cverse"><div class="cvnum">Doha · Opening</div><div class="cvrom">Shri Guru Charan Saroj Raj, Nij Manu Mukura Sudhari,<br>Barnaun Raghuvar Bimal Jasu, Jo Dayaku Phala Chari.</div><div class="cvdeva">श्री गुरु चरन सरोज रज, निज मन मुकुरु सुधारि।<br>बरनउँ रघुबर बिमल जसु, जो दायकु फल चारि॥</div></div>
+        <div class="cverse"><div class="cvnum">Doha · Opening (2)</div><div class="cvrom">Buddhiheen Tanu Janike, Sumirau Pavan Kumar,<br>Bal Buddhi Vidya Dehu Mohi, Harahu Kalesh Bikaar.</div><div class="cvdeva">बुद्धिहीन तनु जानिके, सुमिरौ पवन कुमार।<br>बल बुधि बिद्या देहु मोहिं, हरहु कलेस बिकार॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 1</div><div class="cvrom">Jai Hanuman Gyan Gun Sagar, Jai Kapis Tihun Lok Ujagar.</div><div class="cvdeva">जय हनुमान ज्ञान गुण सागर। जय कपीस तिहुँ लोक उजागर॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 2</div><div class="cvrom">Ram Doot Atulit Bal Dhama, Anjani Putra Pavan Sut Nama.</div><div class="cvdeva">रामदूत अतुलित बल धामा। अंजनि पुत्र पवनसुत नामा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 3</div><div class="cvrom">Mahaveer Vikram Bajrangi, Kumati Nivar Sumati Ke Sangi.</div><div class="cvdeva">महावीर विक्रम बजरंगी। कुमति निवार सुमति के संगी॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 4</div><div class="cvrom">Kanchan Baran Biraj Subesha, Kanan Kundal Kunchit Kesha.</div><div class="cvdeva">कंचन बरन बिराज सुबेसा। कानन कुण्डल कुँचित केसा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 5</div><div class="cvrom">Hath Bajra Aur Dhvaja Biraje, Kandhe Moonj Janeu Saaje.</div><div class="cvdeva">हाथ बज्र औ ध्वजा बिराजे। काँधे मूँज जनेऊ साजे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 6</div><div class="cvrom">Shankar Suvana Kesari Nandan, Tej Prataap Maha Jag Vandan.</div><div class="cvdeva">संकर सुवन केसरी नंदन। तेज प्रताप महा जग बंदन॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 7</div><div class="cvrom">Vidyavaan Guni Ati Chatur, Ram Kaaj Karibe Ko Aatur.</div><div class="cvdeva">विद्यावान गुनी अति चातुर। राम काज करिबे को आतुर॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 8</div><div class="cvrom">Prabhu Charitra Sunibe Ko Rasiya, Ram Lakhan Sita Man Basiya.</div><div class="cvdeva">प्रभु चरित्र सुनिबे को रसिया। राम लखन सीता मन बसिया॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 9</div><div class="cvrom">Sukshma Roop Dhari Siyahin Dikhava, Bikat Roop Dhari Lanka Jarava.</div><div class="cvdeva">सूक्ष्म रूप धरि सियहिं दिखावा। बिकट रूप धरि लंक जरावा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 10</div><div class="cvrom">Bhim Roop Dhari Asur Sanghare, Ramachandra Ke Kaaj Sanvare.</div><div class="cvdeva">भीम रूप धरि असुर सँहारे। रामचंद्र के काज सँवारे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 11</div><div class="cvrom">Laye Sanjeevan Lakhan Jiyaye, Shri Raghubir Harashi Ur Laye.</div><div class="cvdeva">लाये सञ्जीवन लखन जियाये। श्री रघुबीर हरषि उर लाये॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 12</div><div class="cvrom">Raghupati Kinhi Bahut Badai, Tum Mama Priya Bharatahi Sam Bhai.</div><div class="cvdeva">रघुपति कीन्ही बहुत बड़ाई। तुम मम प्रिय भरतहि सम भाई॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 13</div><div class="cvrom">Sahas Badan Tumharo Jas Gaave, Asa Kahi Shripati Kanth Lagaave.</div><div class="cvdeva">सहस बदन तुम्हरो जस गावें। अस कहि श्रीपति कंठ लगावें॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 14</div><div class="cvrom">Sankadik Brahmadi Munisha, Narad Sarad Sahit Aheesa.</div><div class="cvdeva">सनकादिक ब्रह्मादि मुनीसा। नारद सारद सहित अहीसा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 15</div><div class="cvrom">Jam Kuber Digpal Jahan Te, Kabi Kobid Kahi Sake Kahan Te.</div><div class="cvdeva">जम कुबेर दिगपाल जहाँ ते। कबि कोबिद कहि सके कहाँ ते॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 16</div><div class="cvrom">Tum Upkar Sugreevahi Keenha, Ram Milaye Rajpad Deenha.</div><div class="cvdeva">तुम उपकार सुग्रीवहिं कीन्हा। राम मिलाय राजपद दीन्हा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 17</div><div class="cvrom">Tumharo Mantra Vibhishan Maana, Lankeshvar Bhaye Sab Jag Jaana.</div><div class="cvdeva">तुम्हरो मंत्र विभीषण माना। लंकेश्वर भये सब जग जाना॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 18</div><div class="cvrom">Yug Sahastra Yojan Par Bhanu, Leelyo Tahi Madhur Phal Janu.</div><div class="cvdeva">जुग सहस्र जोजन पर भानू। लील्यो ताहि मधुर फल जानू॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 19</div><div class="cvrom">Prabhu Mudrika Meli Mukh Maahi, Jaladhi Langhi Gaye Acharaj Naahi.</div><div class="cvdeva">प्रभु मुद्रिका मेलि मुख माहीं। जलधि लाँघि गये अचरज नाहीं॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 20</div><div class="cvrom">Durgam Kaaj Jagat Ke Jete, Sugam Anugraha Tumhare Tete.</div><div class="cvdeva">दुर्गम काज जगत के जेते। सुगम अनुग्रह तुम्हरे तेते॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 21</div><div class="cvrom">Ram Duware Tum Rakhvare, Hot Na Aagya Binu Paisare.</div><div class="cvdeva">राम द्वारे तुम रखवारे। होत न आज्ञा बिनु पैसारे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 22</div><div class="cvrom">Sab Sukh Lahe Tumhari Sarna, Tum Rakshak Kahu Ko Darna.</div><div class="cvdeva">सब सुख लहैं तुम्हारी सरना। तुम रच्छक काहू को डरना॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 23</div><div class="cvrom">Aapan Tej Samharo Aape, Teenon Lok Hank Te Kaanpe.</div><div class="cvdeva">आपन तेज सम्हारो आपे। तीनों लोक हाँक ते काँपे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 24</div><div class="cvrom">Bhoot Pishaach Nikat Nahi Aave, Mahaveer Jab Naam Sunaave.</div><div class="cvdeva">भूत पिशाच निकट नहिं आवे। महावीर जब नाम सुनावे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 25</div><div class="cvrom">Nashe Rog Hare Sab Peera, Japat Nirantar Hanumat Beera.</div><div class="cvdeva">नासे रोग हरे सब पीरा। जपत निरंतर हनुमत बीरा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 26</div><div class="cvrom">Sankat Te Hanuman Chhudave, Man Kram Vachan Dhyan Jo Lave.</div><div class="cvdeva">संकट से हनुमान छुड़ावे। मन क्रम बचन ध्यान जो लावे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 27</div><div class="cvrom">Sab Par Ram Tapasvee Raja, Tin Ke Kaaj Sakal Tum Saaja.</div><div class="cvdeva">सब पर राम तपस्वी राजा। तिन के काज सकल तुम साजा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 28</div><div class="cvrom">Aur Manorath Jo Koi Lave, Sohi Amit Jeevan Phal Pave.</div><div class="cvdeva">और मनोरथ जो कोई लावे। सोई अमित जीवन फल पावे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 29</div><div class="cvrom">Charon Yug Partap Tumhara, Hai Parsiddha Jagat Ujiyara.</div><div class="cvdeva">चारों जुग परताप तुम्हारा। है परसिद्ध जगत उजियारा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 30</div><div class="cvrom">Sadhu Sant Ke Tum Rakhware, Asur Nikandan Ram Dulare.</div><div class="cvdeva">साधु संत के तुम रखवारे। असुर निकंदन राम दुलारे॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 31</div><div class="cvrom">Ashta Siddhi Nav Nidhi Ke Data, As Bar Deen Janki Mata.</div><div class="cvdeva">अष्ट सिद्धि नव निधि के दाता। अस बर दीन जानकी माता॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 32</div><div class="cvrom">Ram Rasayan Tumhare Paasa, Sada Raho Raghupati Ke Daasa.</div><div class="cvdeva">राम रसायन तुम्हरे पासा। सदा रहो रघुपति के दासा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 33</div><div class="cvrom">Tumhare Bhajan Ram Ko Pavai, Janam Janam Ke Dukh Bisraavai.</div><div class="cvdeva">तुम्हरे भजन राम को पावै। जनम जनम के दुख बिसरावै॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 34</div><div class="cvrom">Ant Kaal Raghubar Pur Jaayi, Jahan Janam Hari Bhakt Kahaayi.</div><div class="cvdeva">अंत काल रघुबर पुर जाई। जहाँ जन्म हरिभक्त कहाई॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 35</div><div class="cvrom">Aur Devta Chit Na Dharayi, Hanumat Sei Sarv Sukh Karayi.</div><div class="cvdeva">और देवता चित न धरई। हनुमत सेइ सर्ब सुख करई॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 36</div><div class="cvrom">Sankat Kate Mite Sab Peera, Jo Sumirai Hanumat Balbira.</div><div class="cvdeva">संकट कटे मिटे सब पीरा। जो सुमिरै हनुमत बलबीरा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 37</div><div class="cvrom">Jai Jai Jai Hanuman Gosain, Kripa Karahu Gurudev Ki Naain.</div><div class="cvdeva">जय जय जय हनुमान गोसाईं। कृपा करहु गुरुदेव की नाईं॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 38</div><div class="cvrom">Jo Sat Bar Path Kare Koi, Chhutahi Bandi Maha Sukh Hoi.</div><div class="cvdeva">जो सत बार पाठ कर कोई। छूटहि बंदि महा सुख होई॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 39</div><div class="cvrom">Jo Yeh Padhe Hanuman Chalisa, Hoy Siddhi Sakhi Gaurisa.</div><div class="cvdeva">जो यह पढ़े हनुमान चालीसा। होय सिद्धि साखी गौरीसा॥</div></div>
+        <div class="cverse"><div class="cvnum">Chaupai 40</div><div class="cvrom">Tulsidas Sada Hari Chera, Keeje Nath Hriday Mah Dera.</div><div class="cvdeva">तुलसीदास सदा हरि चेरा। कीजे नाथ हृदय महँ डेरा॥</div></div>
+        <div class="cverse"><div class="cvnum">Doha · Closing</div><div class="cvrom">Pavan Tanay Sankat Haran, Mangal Murati Roop,<br>Ram Lakhan Sita Sahit, Hriday Basahu Sur Bhoop.</div><div class="cvdeva">पवन तनय संकट हरन, मंगल मूरति रूप।<br>राम लखन सीता सहित, हृदय बसहु सुर भूप॥</div></div>
+      </div>
+      <div class="msec">♄ Saturday Protocol — Rahu PD</div>
+      <div class="mblock sat">
+        <div class="mlabel sat">4× total on Saturday · Until Jun 20, 2026</div>
+        <div class="mrom">Hanuman Chalisa × 3 additional (4× total)</div>
+        <div class="mdeva">॥ हनुमान चालीसा ॥ × ४ शनिवार को</div>
+        <div class="mnote">Donate sesame oil at Hanuman temple on Saturdays. Ketu H11 income-suppression remedy. Reverts to 1× daily after Jun 20, 2026.</div>
+      </div>
+    `
+  },
+
+  /* ─── JUPITER ─── */
+  jupiter: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Brihaspati_Deva.jpg/480px-Brihaspati_Deva.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Guru_%28Sanskrit%29.jpg/480px-Guru_%28Sanskrit%29.jpg',
+    name: 'Jupiter · Guru',
+    epithets: 'Brihaspati · Devaguru · Vachaspati · Dhishana · Jiva',
+    pills: ['Thursday','6–10 AM Jupiter Hora','19× daily · 19,000× Purashcharana'],
+    purpose: 'Lagna lord + Atmakaraka. Debilitated Capricorn with Neecha Bhanga Raja Yoga. PD lord from Jun 20, 2026. Highest priority day of the week — every Thursday Jupiter hora missed is a missed activation.',
+    content: `
+      <div class="msec">🪐 Beej Mantra — Purashcharana Target 19,000×</div>
+      <div class="mblock">
+        <div class="mlabel">Jupiter Beej — During Purashcharana: daily until 19,000 complete</div>
+        <div class="mrom">Om Graam Greem Graum Sah Gurave Namah</div>
+        <div class="mdeva">ॐ ग्रां ग्रीं ग्रौं सः गुरुवे नमः</div>
+        <div class="mnote">Start Thursday. Daily recitation until 19,000 total complete. After completion: revert to 19× every Thursday Jupiter hora (6–10 AM). Deadline: before Jun 2026.</div>
+      </div>
+      <div class="mblock">
+        <div class="mlabel">Jupiter Hora Mantra — Thursday 6–10 AM · 19×</div>
+        <div class="mrom">Om Brim Brihaspataye Namaha</div>
+        <div class="mdeva">ॐ बृं बृहस्पतये नमः</div>
+        <div class="mnote">Recite 19× during Jupiter hora Thursday morning. All career-critical actions in this window — senior applications, outreach, negotiations, interviews.</div>
+      </div>
+      <div class="msec">✨ Jupiter Gayatri — D-60</div>
+      <div class="mblock">
+        <div class="mlabel">Jupiter Gayatri · 108× before sunrise Thursday</div>
+        <div class="mrom">Om Vrishabhadhwajaya Vidmahe, Karunihastaya Dhimahi, Tanno Guruh Prachodayat</div>
+        <div class="mdeva">ॐ वृषभध्वजाय विद्महे करुणिहस्ताय धीमहि। तन्नो गुरु: प्रचोदयात्॥</div>
+        <div class="mnote">108× before sunrise on Thursday. D-60 prescribed for Kaal deity Jupiter (Lagna lord).</div>
+      </div>
+      <div class="msec">🔥 Mrityunjaya — Daily (see also Shiva tab)</div>
+      <div class="mblock blu">
+        <div class="mlabel blu">Mrityunjaya — 21× every morning · D-60</div>
+        <div class="mrom">Om Tryambakam Yajamahe Sugandhim Pushtivardhanam, Urvarukamiva Bandhanan Mrityor Mukshiya Maamritat</div>
+        <div class="mdeva">ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय माऽमृतात्॥</div>
+        <div class="mnote">For Kaal deity on D-60 Lagna lord Jupiter. 21× every morning at 7:20 AM. Non-negotiable daily.</div>
+      </div>
+      <div class="hl gold">⭐ Jun 20–Sep 12, 2026 is your Jupiter PD peak. Every Thursday Jupiter hora (6–10 AM) missed until then = missed activation of the most powerful window in this chart.</div>
+    `
+  },
+
+  /* ─── VENUS ─── */
+  venus: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Shukra_%28Sanskrit%29.jpg/480px-Shukra_%28Sanskrit%29.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Shukra_graha.jpg/480px-Shukra_graha.jpg',
+    name: 'Venus · Shukra',
+    epithets: 'Shukracharya · Bhrigu Putra · Sita · Kavi · Usanas',
+    pills: ['Friday','Morning + Evening','16,000× Purashcharana'],
+    purpose: '5th + 10th lord. 20-year Mahadasha lord. Retrograde. Exalted 12th house. Yama amsha D-60. The channel that carries the 20-year MD blessing — must be activated with consistent Friday practice.',
+    content: `
+      <div class="msec">♀ Beej Mantra — Purashcharana Target 16,000×</div>
+      <div class="mblock">
+        <div class="mlabel">Venus Beej — Daily until 16,000 complete (3rd Purashcharana)</div>
+        <div class="mrom">Om Draam Dreem Draum Sah Shukraya Namah</div>
+        <div class="mdeva">ॐ द्रां द्रीं द्रौं सः शुक्राय नमः</div>
+        <div class="mnote">Start Friday. After completing 16,000: revert to Venus Gayatri on Fridays. Deadline: By Dec 2026.</div>
+      </div>
+      <div class="msec">✨ Venus Gayatri — After Purashcharana</div>
+      <div class="mblock">
+        <div class="mlabel">Venus Gayatri · 108× Friday morning</div>
+        <div class="mrom">Om Ashwadhwajaya Vidmahe, Dhanur Hastaya Dhimahi, Tanno Shukrah Prachodayat</div>
+        <div class="mdeva">ॐ अश्वध्वजाय विद्महे धनुर्हस्ताय धीमहि। तन्नः शुक्रः प्रचोदयात्॥</div>
+        <div class="mnote">108× on Friday after completing 16,000× Purashcharana. D-60 prescribed for Yama amsha Venus.</div>
+      </div>
+      <div class="msec">🪔 Lakshmi Ashtakam — Friday Evening</div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Friday Evening Stotra · 1× full recitation</div>
+        <div class="mrom">Namastejasvi Deveshi, Namaste Lokamangale,<br>Namaste Sarvabhutanam, Abhayam Dehi Shobhane...</div>
+        <div class="mdeva">नमस्तेजस्वि देवेशि, नमस्ते लोकमंगले।<br>नमस्ते सर्वभूतानां, अभयं देहि शोभने॥</div>
+        <div class="mnote">Light ghee lamp before recitation. Full Lakshmi Ashtakam 1× every Friday evening. Yama amsha Venus (20-year MD lord) responds specifically to Lakshmi devotion and dharmic conduct.</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Donate — Friday morning</div>
+        <div class="mrom">Donate white sweets, white cloth, silver items. Feed white cows if accessible.</div>
+        <div class="mdeva">शुक्रवार दान — श्वेत वस्तु, चाँदी</div>
+        <div class="mnote">Weekly. D-60 prescribed.</div>
+      </div>
+    `
+  },
+
+  /* ─── SATURN ─── */
+  saturn: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Shani_%28Sanskrit%29.jpg/480px-Shani_%28Sanskrit%29.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Shani_graha.jpg/480px-Shani_graha.jpg',
+    name: 'Saturn · Shani',
+    epithets: 'Shanaishchara · Krura · Manda · Saptarchi · Pingala',
+    pills: ['Saturday','Sunrise Saturn Hora','23,000× Purashcharana'],
+    purpose: 'Retrograde H12. Soumya amsha D-60. Transit suppressor over Mercury-Venus. Responds only to unconditional, invisible service. Saturn H12 retrograde: one unstructured day becomes ten.',
+    content: `
+      <div class="msec">♄ Beej Mantra — Purashcharana Target 23,000×</div>
+      <div class="mblock">
+        <div class="mlabel">Saturn Beej — Daily until 23,000 complete (5th Purashcharana)</div>
+        <div class="mrom">Om Praam Preem Praum Sah Shanaischaraya Namah</div>
+        <div class="mdeva">ॐ प्रां प्रीं प्रौं सः शनैश्चराय नमः</div>
+        <div class="mnote">Start Saturday. After completing 23,000: revert to 19× every Saturday Saturn hora at sunrise. Deadline: By Mar 2027.</div>
+      </div>
+      <div class="mblock">
+        <div class="mlabel">Saturn Hora Mantra — Saturday Sunrise · 21×</div>
+        <div class="mrom">Om Sham Shanaishcharaya Namaha</div>
+        <div class="mdeva">ॐ शं शनैश्चराय नमः</div>
+        <div class="mnote">21× during Saturn hora at sunrise on Saturday. After Purashcharana: 19× every Saturday Saturn hora.</div>
+      </div>
+      <div class="msec">✨ Saturn Gayatri — D-60</div>
+      <div class="mblock">
+        <div class="mlabel">Saturn Gayatri · 108× Saturday morning</div>
+        <div class="mrom">Om Kakadwajaya Vidmahe, Khadga Hastaya Dhimahi, Tanno Mandah Prachodayat</div>
+        <div class="mdeva">ॐ काकध्वजाय विद्महे खड्गहस्ताय धीमहि। तन्नो मन्दः प्रचोदयात्॥</div>
+        <div class="mnote">108× Saturday morning. D-60 prescribed for Soumya amsha Saturn.</div>
+      </div>
+      <div class="mblock sat">
+        <div class="mlabel sat">Donate — Saturday</div>
+        <div class="mrom">Black sesame (til), mustard oil, black cloth to poor or temple. Feed black dogs and crows. Sesame oil lamp at Shani temple.</div>
+        <div class="mdeva">शनिवार दान — काले तिल, सरसों का तेल, काला वस्त्र</div>
+        <div class="mnote">Weekly. Confirmed in both 11R and D-60.</div>
+      </div>
+      <div class="mblock sat">
+        <div class="mlabel sat">Seva — Saturday</div>
+        <div class="mrom">Selfless service — serve the poor, disabled, or elderly without expectation.</div>
+        <div class="mdeva">निःस्वार्थ सेवा — शनिवार</div>
+        <div class="mnote">Saturn H12 retrograde responds only to unconditional, invisible service. Weekly.</div>
+      </div>
+    `
+  },
+
+  /* ─── MOON ─── */
+  moon: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Chandra_%28Sanskrit%29.jpg/480px-Chandra_%28Sanskrit%29.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Chandra_graha.jpg/480px-Chandra_graha.jpg',
+    name: 'Moon · Chandra',
+    epithets: 'Soma · Indu · Shashin · Nishakara · Mrityunjaya',
+    pills: ['Monday','Moon Hora','11,000× Purashcharana · 108× Monday'],
+    purpose: '8th lord. Current MD lord. Rakshasa amsha D-60. Gandanta 0°59\' Aries. Most emotionally demanding planetary position in this chart. Amavasya birth + 8th lord MD = highest ancestral karma load possible.',
+    content: `
+      <div class="msec">🌙 Beej Mantra — Purashcharana Target 11,000×</div>
+      <div class="mblock">
+        <div class="mlabel">Moon Beej — Daily until 11,000 complete (2nd Purashcharana)</div>
+        <div class="mrom">Om Shraam Shreem Shraum Sah Chandramase Namah</div>
+        <div class="mdeva">ॐ श्रां श्रीं श्रौं सः चन्द्रमसे नमः</div>
+        <div class="mnote">Start Monday. After completing 11,000: revert to 108× every Monday during Moon hora. Deadline: before Jun 2026.</div>
+      </div>
+      <div class="mblock">
+        <div class="mlabel">Moon Hora Mantra — Monday · 108×</div>
+        <div class="mrom">Om Som Somaya Namaha</div>
+        <div class="mdeva">ॐ सोम सोमाय नमः</div>
+        <div class="mnote">108× during Moon hora on Monday. Wear white or silver clothing. Drink water from silver glass.</div>
+      </div>
+      <div class="msec">✨ Moon Gayatri — D-60</div>
+      <div class="mblock">
+        <div class="mlabel">Moon Gayatri · 108× Monday morning</div>
+        <div class="mrom">Om Kshirputraya Vidmahe, Amrit Tattvaya Dhimahi, Tanno Chandrah Prachodayat</div>
+        <div class="mdeva">ॐ क्षीरपुत्राय विद्महे अमृततत्त्वाय धीमहि। तन्नो चन्द्रः प्रचोदयात्॥</div>
+        <div class="mnote">108× Monday morning. D-60 prescribed for Rakshasa amsha Moon.</div>
+      </div>
+      <div class="msec">📖 Argala Stotram — Monday Evening · D-60</div>
+      <div class="mblock">
+        <div class="mlabel">Devi Mahatmyam · 1× full recitation</div>
+        <div class="mrom">Argala Stotram (Devi Mahatmyam) — 1× full recitation Monday evening</div>
+        <div class="mdeva">॥ अर्गला स्तोत्रम् ॥ — देवी माहात्म्यम्</div>
+        <div class="mnote">Offer raw milk + white flowers to Shiva Linga. Specifically prescribed for Rakshasa amsha Moon (D-60). Every Monday evening.</div>
+      </div>
+      <div class="mblock">
+        <div class="mlabel">Fast — Monday</div>
+        <div class="mrom">Fast or eat only white foods — rice, milk, curd, coconut. Drink water from silver glass.</div>
+        <div class="mdeva">सोमवार व्रत — श्वेत अन्न</div>
+        <div class="mnote">Weekly. Wear white or silver clothing if possible.</div>
+      </div>
+    `
+  },
+
+  /* ─── MERCURY ─── */
+  mercury: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Budha_%28Sanskrit%29.jpg/480px-Budha_%28Sanskrit%29.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Budha_graha.jpg/480px-Budha_graha.jpg',
+    name: 'Mercury · Budha',
+    epithets: 'Saumya · Rohineyya · Chandratmaja · Taraputra · Bodhana',
+    pills: ['Wednesday','7–10 AM Mercury Hora','17,000× Purashcharana'],
+    purpose: 'Maha Yogada. Debilitated in Pisces. Ghora amsha D-60. Career delivery planet — 10th lord. Highest priority mid-week window. Mercury Maha Yogada activates only through expertise under pressure.',
+    content: `
+      <div class="msec">☿ Beej Mantra — Purashcharana Target 17,000×</div>
+      <div class="mblock">
+        <div class="mlabel">Mercury Beej — Daily until 17,000 complete (4th Purashcharana)</div>
+        <div class="mrom">Om Braam Breem Braum Sah Budhaya Namah</div>
+        <div class="mdeva">ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः</div>
+        <div class="mnote">Start Wednesday. After completing 17,000: revert to 27× during Mercury hora every Wednesday. Deadline: By Dec 2026.</div>
+      </div>
+      <div class="mblock">
+        <div class="mlabel">Mercury Hora Mantra — Wednesday 7–10 AM · 27×</div>
+        <div class="mrom">Om Bum Budhaya Namaha</div>
+        <div class="mdeva">ॐ बुं बुधाय नमः</div>
+        <div class="mnote">27× during Mercury hora 7–10 AM Wednesday (Hubli time). All professional emails and applications this morning. Mercury hora 2–5 PM: all written professional emails and follow-ups.</div>
+      </div>
+      <div class="msec">✨ Mercury Gayatri — D-60</div>
+      <div class="mblock">
+        <div class="mlabel">Mercury Gayatri · 108× Wednesday morning</div>
+        <div class="mrom">Om Gajadhwajaya Vidmahe, Sukha Hastaya Dhimahi, Tanno Budhah Prachodayat</div>
+        <div class="mdeva">ॐ गजध्वजाय विद्महे सुखहस्ताय धीमहि। तन्नो बुधः प्रचोदयात्॥</div>
+        <div class="mnote">108× Wednesday morning. D-60 prescribed for Ghora amsha Mercury.</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Donate — Wednesday</div>
+        <div class="mrom">Green moong dal, green vegetables, or green clothing. Feed parrots.</div>
+        <div class="mdeva">बुधवार दान — हरी मूंग, हरी सब्जी</div>
+        <div class="mnote">Weekly.</div>
+      </div>
+      <div class="hl gold">⭐ Deep analytical writing or skill-building — minimum 1 hour on Wednesday. Mercury Maha Yogada activates only through expertise under pressure.</div>
+    `
+  },
+
+  /* ─── SHIVA ─── */
+  shiva: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Shiva_Parvati_Basohli_miniature_circa_1690_Dubost_p67.jpg/480px-Shiva_Parvati_Basohli_miniature_circa_1690_Dubost_p67.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Shiva_Nataraja_Brihadishwara.jpg/480px-Shiva_Nataraja_Brihadishwara.jpg',
+    name: 'Shiva · Mrityunjaya',
+    epithets: 'Mahadeva · Tryambaka · Neelakantha · Pashupatinath · Rudra',
+    pills: ['Every Day','7:20 AM','21× daily'],
+    purpose: 'For Kaal deity on D-60 Lagna lord Jupiter. Daily non-negotiable. D-60 addition — addresses the death-cycle karmic layer held by Kaal as the deity presiding over Jupiter in the Shastiamsa.',
+    content: `
+      <div class="msec">🔱 Mahamrityunjaya Mantra — 21× Daily</div>
+      <div class="mblock">
+        <div class="mlabel">Mahamrityunjaya — every morning 7:20 AM · 21×</div>
+        <div class="mrom">Om Tryambakam Yajamahe Sugandhim Pushtivardhanam,<br>Urvarukamiva Bandhanan Mrityor Mukshiya Maamritat</div>
+        <div class="mdeva">ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्।<br>उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय माऽमृतात्॥</div>
+        <div class="mnote">21× every morning. For Kaal deity on D-60 Lagna lord Jupiter. D-60 addition. Use rudraksha mala if available.</div>
+      </div>
+      <div class="msec">🌙 Monday Evening — Shiva Offering</div>
+      <div class="mblock">
+        <div class="mlabel">Shiva Linga Offering — Monday evening</div>
+        <div class="mrom">Offer raw milk + white flowers to Shiva Linga. Recite Argala Stotram (see Moon tab).</div>
+        <div class="mdeva">शिवलिंग — कच्चा दूध + श्वेत पुष्प — सोमवार</div>
+        <div class="mnote">Monday evening. Prescribed for Rakshasa amsha Moon (D-60). Combines the Moon and Shiva remedies.</div>
+      </div>
+      <div class="msec">🔥 Shiva Gayatri</div>
+      <div class="mblock">
+        <div class="mlabel">Shiva Gayatri</div>
+        <div class="mrom">Om Tatpurushaya Vidmahe, Mahadevaya Dhimahi, Tanno Rudrah Prachodayat</div>
+        <div class="mdeva">ॐ तत्पुरुषाय विद्महे महादेवाय धीमहि। तन्नो रुद्रः प्रचोदयात्॥</div>
+        <div class="mnote">Optional addition on Mondays or Shivaratri. Deepens the Mahamrityunjaya practice.</div>
+      </div>
+      <div class="hl">The Mahamrityunjaya is the single most important D-60 addition in this stack. 21× daily runs every day without exception — not just on Mondays or Shivaratri.</div>
+    `
+  },
+
+  /* ─── LAKSHMI ─── */
+  lakshmi: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Lakshmi_Ravi_Varma.jpg/480px-Lakshmi_Ravi_Varma.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Goddess_Lakshmi_with_attendants.jpg/480px-Goddess_Lakshmi_with_attendants.jpg',
+    name: 'Lakshmi',
+    epithets: 'Mahalakshmi · Shri · Padma · Kamala · Lokmata',
+    pills: ['Friday','Evening','Ghee Lamp · Ashtakam 1×'],
+    purpose: 'Venus MD lord for 20 years. Yama amsha Venus D-60. Lakshmi devotion is the classical antidote for Yama amsha — activates the 20-year MD blessing channel. Friday evening is non-negotiable.',
+    content: `
+      <div class="msec">🪔 Lakshmi Ashtakam — Full 8 Verses</div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Full recitation · 1× every Friday evening · Light ghee lamp first</div>
+        <div class="mrom">Namasthesthu Mahamaye, Shreepithe Sura Poojithey,<br>Shankha Chakra Gadha Hasthey, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">नमस्तेऽस्तु महामाये श्रीपीठे सुरपूजिते।<br>शङ्खचक्रगदाहस्ते महालक्ष्मि नमोऽस्तु ते॥ १॥</div>
+        <div class="mnote">Verse 1</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Namasthe Garudaroodhey, Kolaasura Bhayankari,<br>Sarva Papa Harathey Devi, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">नमस्ते गरुडारूढे कोलासुरभयङ्करि।<br>सर्वपापहरे देवि महालक्ष्मि नमोऽस्तु ते॥ २॥</div>
+        <div class="mnote">Verse 2</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Sarvagne Sarva Varade, Sarva Dushta Bhayankari,<br>Sarva Dukha Harathey Devi, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">सर्वज्ञे सर्ववरदे सर्वदुष्टभयङ्करि।<br>सर्वदुःखहरे देवि महालक्ष्मि नमोऽस्तु ते॥ ३॥</div>
+        <div class="mnote">Verse 3</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Siddhi Buddhi Pradey Devi, Bhukti Mukti Pradayini,<br>Manthra Moorthe Sada Devi, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">सिद्धिबुद्धिप्रदे देवि भुक्तिमुक्तिप्रदायिनि।<br>मन्त्रमूर्ते सदा देवि महालक्ष्मि नमोऽस्तु ते॥ ४॥</div>
+        <div class="mnote">Verse 4</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Aadyanthaa Rahithey Devi, Aadhi Shakthi Maheshwari,<br>Yogaje Yoga Sambhoothe, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">आद्यन्तरहिते देवि आद्यशक्तिमहेश्वरि।<br>योगजे योगसम्भूते महालक्ष्मि नमोऽस्तु ते॥ ५॥</div>
+        <div class="mnote">Verse 5</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Sthoolaasookshma Mahoraudrey, Mahashakthi Mahodhareth,<br>Mahapapa Harathey Devi, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">स्थूलसूक्ष्ममहारौद्रे महाशक्तिमहोदरे।<br>महापापहरे देवि महालक्ष्मि नमोऽस्तु ते॥ ६॥</div>
+        <div class="mnote">Verse 6</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Padmasanasthithey Devi, Parabrahma Swaroopini,<br>Parameshi Jagan Matha, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">पद्मासनस्थिते देवि परब्रह्मस्वरूपिणि।<br>परमेशि जगन्मातर्महालक्ष्मि नमोऽस्तु ते॥ ७॥</div>
+        <div class="mnote">Verse 7</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mrom">Shwethaambaradhare Devi, Naanaalankara Bhooshithey,<br>Jagathsthithey Jaganmatha, Mahalakshmi Namosthuthe.</div>
+        <div class="mdeva">श्वेताम्बरधरे देवि नानालङ्कारभूषिते।<br>जगत्स्थिते जगन्मातर्महालक्ष्मि नमोऽस्तु ते॥ ८॥</div>
+        <div class="mnote">Verse 8 — Phala Shruti follows</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Phala Shruti</div>
+        <div class="mrom">Mahalakshmi Ashtakam Stotram, Yah Pathet Bhaktiman Narah,<br>Sarva Siddhim Avapnoti, Rajyam Prapnoti Sarvada.</div>
+        <div class="mdeva">महालक्ष्म्यष्टकस्तोत्रं यः पठेद्भक्तिमान्नरः।<br>सर्वसिद्धिमवाप्नोति राज्यं प्राप्नोति सर्वदा॥</div>
+        <div class="mnote">Phala Shruti — read after the 8 verses to seal the recitation.</div>
+      </div>
+    `
+  },
+
+  /* ─── MONTHLY ─── */
+  monthly: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Pitru_paksha_rituals.jpg/480px-Pitru_paksha_rituals.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Ganesha_Basohli_miniature_circa_1730_Dubost_p73.jpg/480px-Ganesha_Basohli_miniature_circa_1730_Dubost_p73.jpg',
+    name: 'Monthly Rituals',
+    epithets: 'Amavasya Tarpan · Sankashti Chaturthi · Every Month Without Exception',
+    pills: ['Amavasya (New Moon)','Sankashti Chaturthi','Non-negotiable monthly'],
+    purpose: 'Amavasya birth + Moon gandanta + 8th lord MD = highest ancestral karma load possible. Monthly Tarpan clears it systematically. Single most important monthly ritual for this chart.',
+    content: `
+      <div class="msec">🌑 Amavasya — Pitru Tarpan (Every New Moon)</div>
+      <div class="mblock gold">
+        <div class="mlabel gold">Water Offering Mantra · 11× per cycle</div>
+        <div class="mrom">Om Pitru Devaya Namaha</div>
+        <div class="mdeva">ॐ पितृ देवाय नमः</div>
+        <div class="mnote">Face South. Cup both hands. Offer water 3 times letting it pour over the right thumb. Repeat 3 cycles (9 offerings total). Chant 11× during each water offering. Light a sesame oil lamp facing South after. Donate food to elderly or Brahmins on first Amavasya of every month.</div>
+      </div>
+      <div class="mblock">
+        <div class="mlabel">Amavasya Rule</div>
+        <div class="mrom">Do NOT make major career or financial decisions on Amavasya days.</div>
+        <div class="mdeva">अमावस्या — बड़े निर्णय वर्जित</div>
+        <div class="mnote">Moon gandanta's poorest decision window. Plan applications, negotiations, investments on other days.</div>
+      </div>
+      <div class="msec">🌓 Sankashti Chaturthi — Ganesha Fast</div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Ganesha Mantra · 1008× — spread across morning and evening</div>
+        <div class="mrom">Om Gam Ganapataye Namaha</div>
+        <div class="mdeva">ॐ गं गणपतये नमः — १००८×</div>
+        <div class="mnote">Fast from sunrise to moonrise — water and milk permitted, no food. Visit Ganesha temple in evening. Offer modak, durva grass, red flowers. Break fast after moonrise only.</div>
+      </div>
+      <div class="mblock grn">
+        <div class="mlabel grn">During Jupiter PD (Jun 20–Sep 12, 2026) — extended</div>
+        <div class="mrom">Full Ganesha Stotra recitation in addition to 1008× on every Sankashti</div>
+        <div class="mdeva">॥ श्री गणेश स्तोत्र ॥ + १००८×</div>
+        <div class="mnote">Most powerful monthly practice for Amavasya-born natives. Directly addresses employment gap obstacle at root level.</div>
+      </div>
+      <div class="msec">⚡ Urgent One-Time — Before Jun 2026</div>
+      <div class="mblock">
+        <div class="mlabel">Pitru Tarpan at Trimbakeshwar, Nashik</div>
+        <div class="mrom">Full day with temple priest. Kala Sarpa puja included.</div>
+        <div class="mdeva">त्र्यंबकेश्वर, नाशिक — पितृ तर्पण + कालसर्प पूजा</div>
+        <div class="mnote">Monthly Tarpan clears the surface. Trimbakeshwar clears the root. India's strongest Pitru Dosha temple. Book before Jun 2026. Cost: ₹2,000–5,000 + travel.</div>
+      </div>
+    `
+  },
+
+  /* ─── PURASHCHARANA ─── */
+  purash: {
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Japa_mala.jpg/480px-Japa_mala.jpg',
+    imgFallback: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Brihaspati_Deva.jpg/480px-Brihaspati_Deva.jpg',
+    name: 'Purashcharana',
+    epithets: 'Sequential · One at a time · Do not run simultaneously',
+    pills: ['Sequential order','One Purashcharana at a time','5 total · Ju → Mo → Ve → Me → Sa'],
+    purpose: 'During a Purashcharana, recite the mantra daily until the total is complete, then revert to the weekday schedule. Do one at a time — do not run multiple simultaneously. Start on the assigned day.',
+    content: `
+      <div class="msec">1st — Jupiter · Target 19,000× · Start Thursday · Before Jun 2026</div>
+      <div class="mblock">
+        <div class="mlabel" style="color:var(--red)">Priority 1 — Most Urgent</div>
+        <div class="mrom">Om Graam Greem Graum Sah Gurave Namah</div>
+        <div class="mdeva">ॐ ग्रां ग्रीं ग्रौं सः गुरुवे नमः</div>
+        <div class="mnote">Start Thursday. Daily until 19,000 total. After completion: revert to 19× every Thursday Jupiter hora. Deadline: before Jun 2026.</div>
+      </div>
+      <div class="msec">2nd — Moon · Target 11,000× · Start Monday · Before Jun 2026</div>
+      <div class="mblock blu">
+        <div class="mlabel blu">Priority 2</div>
+        <div class="mrom">Om Shraam Shreem Shraum Sah Chandramase Namah</div>
+        <div class="mdeva">ॐ श्रां श्रीं श्रौं सः चन्द्रमसे नमः</div>
+        <div class="mnote">Start Monday. Daily until 11,000 total. After completion: revert to 108× every Monday. Deadline: before Jun 2026.</div>
+      </div>
+      <div class="msec">3rd — Venus · Target 16,000× · Start Friday · By Dec 2026</div>
+      <div class="mblock">
+        <div class="mlabel" style="color:#880e4f">Priority 3</div>
+        <div class="mrom">Om Draam Dreem Draum Sah Shukraya Namah</div>
+        <div class="mdeva">ॐ द्रां द्रीं द्रौं सः शुक्राय नमः</div>
+        <div class="mnote">Start Friday. Daily until 16,000 total. After completion: revert to Venus Gayatri on Fridays. Deadline: By Dec 2026.</div>
+      </div>
+      <div class="msec">4th — Mercury · Target 17,000× · Start Wednesday · By Dec 2026</div>
+      <div class="mblock grn">
+        <div class="mlabel grn">Priority 4</div>
+        <div class="mrom">Om Braam Breem Braum Sah Budhaya Namah</div>
+        <div class="mdeva">ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः</div>
+        <div class="mnote">Start Wednesday. Daily until 17,000 total. After completion: revert to 27× Wednesday Mercury hora. Deadline: By Dec 2026.</div>
+      </div>
+      <div class="msec">5th — Saturn · Target 23,000× · Start Saturday · By Mar 2027</div>
+      <div class="mblock sat">
+        <div class="mlabel sat">Priority 5</div>
+        <div class="mrom">Om Praam Preem Praum Sah Shanaischaraya Namah</div>
+        <div class="mdeva">ॐ प्रां प्रीं प्रौं सः शनैश्चराय नमः</div>
+        <div class="mnote">Start Saturday. Daily until 23,000 total. After completion: revert to 19× every Saturday Saturn hora. Deadline: By Mar 2027.</div>
+      </div>
+      <div class="hl">Do ONE at a time. Do not run multiple Purashcharanas simultaneously. Complete each one fully before starting the next.</div>
+    `
+  }
+
+};
+
+/* ── MODAL ENGINE ── */
+function buildLeft(d) {
+  return '<div class="modal-left"><div class="modal-left-inner">' +
+    '<img class="modal-hero-img" src="' + d.img + '" alt="' + d.name + '" onerror="this.src=\'' + d.imgFallback + '\'">' +
+    '<div class="modal-deity-info">' +
+    '<div class="modal-deity-name">' + d.name + '</div>' +
+    '<div class="modal-deity-epithets">' + d.epithets + '</div>' +
+    '<div class="meta-pills">' +
+      '<span class="mpill mpill-day">' + d.pills[0] + '</span>' +
+      '<span class="mpill mpill-time">' + d.pills[1] + '</span>' +
+      '<span class="mpill mpill-count">' + d.pills[2] + '</span>' +
+    '</div>' +
+    '<div class="modal-purpose">' + d.purpose + '</div>' +
+    '</div></div></div>';
+}
+
+function buildRight(d) {
+  return '<div class="modal-right">' + d.content + '</div>';
+}
+
+function openModal(id) {
+  var d = MODALS[id];
+  if (!d) return;
+  document.getElementById('modal-body').innerHTML = buildLeft(d) + buildRight(d);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+function scrollTo(id) {
+  event.preventDefault();
+  var el = document.getElementById(id);
+  if (el) {
+    var top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+    el.style.transition = 'box-shadow .3s';
+    el.style.boxShadow = '0 0 0 3px #d4a017';
+    setTimeout(function(){ el.style.boxShadow = ''; }, 1200);
+  }
+  document.querySelectorAll('.anchor-pill').forEach(function(p){ p.classList.remove('active'); });
+  var pill = document.querySelector('.anchor-pill[href="#' + id + '"]');
+  if (pill) pill.classList.add('active');
+}
+</script>
+
+</body>
+</html>
